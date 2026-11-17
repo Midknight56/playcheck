@@ -1,0 +1,37 @@
+{
+  "name": "playcheck",
+  "version": "0.1.0",
+  "displayName": "Playcheck",
+  "description": "A Crew agent that plays a game built with the kit through its tool door and reports what it saw.",
+  "author": "Adrian Ferguson",
+  "license": "MIT",
+  "minKiroCrewVersion": "0.12.2",
+  "tags": ["testing", "games", "mcp"],
+  "agents": ["agents/playtester.json"],
+  "skills": ["skills/playcheck"],
+  "mcpServers": {
+    "playcheck-garden": {
+      "command": "node",
+      "args": [
+        "<KIT_REPO>/kit/mcp/dist/server.js",
+        "--game",
+        "<KIT_REPO>/apps/garden"
+      ]
+    }
+  },
+  "crons": [
+    {
+      "name": "nightly-play",
+      "cron_expr": "0 3 * * *",
+      "agent": "playcheck-tester",
+      "enabled": false,
+      "message": "List the levels with new_game. Play the first three to a won status. For each level report the level id, the seed, the actions sent, the final status and the state hash. Save a replay only for a result that does not match the rules."
+    }
+  ],
+  "dependencies": {
+    "commands": ["node"]
+  },
+  "permissions": {
+    "cron": true
+  }
+}
