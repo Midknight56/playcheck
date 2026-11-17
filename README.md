@@ -70,7 +70,9 @@ The agent writes no file, except a saved replay. It saves one only for a result 
 
 `nightly-play` runs at 03:00 and asks the agent to play the first three levels. It ships with `"enabled": false`, so it is paused after install. When it runs, it uses your own Kiro credits.
 
-On Kiro Crew 0.12.2 the dashboard Schedule page lists it with Status `Paused`, a disabled `Run` button, `Delete`, and an `Actions` menu. The words for switching it on were not seen, because that menu was not opened in the test. The Crew CLI has `kirocrew cron resume <job id>` ("Resume a cron job"); `kirocrew cron list` shows the job id. That command was not run.
+On Kiro Crew 0.12.2 the dashboard Schedule page lists it with Status `Paused`, a disabled `Run` button, `Delete`, and an `Actions` menu. The dashboard words for the switch were not checked, because the `Actions` menu was not opened.
+
+To switch the job on, run `kirocrew cron list` to read the job id. Then run `kirocrew cron resume <job id>`. The list then shows a check mark instead of the pause sign. To switch it off again, run `kirocrew cron pause <job id>`. This was tried on Kiro Crew 0.12.2.
 
 ## When the tool door does not start
 
