@@ -4,6 +4,12 @@
 
 The app has one agent, one skill, one tool door entry for the garden puzzle, and one nightly job that ships switched off. It has no account, no login and no backend. The agent runs on your own Kiro credits.
 
+## At a glance
+
+**Value/usefulness.** A small game changes every day and nobody replays every level after each change. With this app a Crew agent plays the game for you through the same tool door a person's game uses, and reports the level, seed, actions, final status and state hash. A run on Kiro Crew 0.12.2 won level g01 and gave the hash `d836baac0f60ae09`; the kit's tool door replayed it and got the same hash. The nightly play check is off after install, so the app never spends your credits until you switch it on with `kirocrew cron resume <job id>`.
+
+**Technical innovation/idea.** The agent does not guess from screenshots. It talks to the game through an MCP server built from the game's own rules, so every move it reports can be replayed and checked to the exact state. The app adds no game code: it is one manifest, one agent, one skill and one tool door entry on top of the Skeleton kit repository.
+
 ## What you need
 
 - Kiro Crew, running (`kirocrew gateway`). The app was tried on Kiro Crew 0.12.2 on Windows.
