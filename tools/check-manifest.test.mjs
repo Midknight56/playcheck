@@ -48,6 +48,10 @@ function validManifest() {
         command: 'node',
         args: ['<KIT_REPO>/kit/mcp/dist/server.js', '--game', '<KIT_REPO>/apps/garden'],
       },
+      'playcheck-commits': {
+        command: 'node',
+        args: ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>'],
+      },
     },
     crons: [
       {
@@ -69,7 +73,7 @@ function validAgent() {
     model: 'auto',
     description: 'Plays a game through the tool door and reports what it saw.',
     prompt: 'You are a playtester.',
-    tools: ['@playcheck-garden'],
+    tools: ['@playcheck:playcheck-garden', '@playcheck:playcheck-commits'],
   };
 }
 
@@ -129,6 +133,31 @@ test('strict reports the placeholder once', async (t) => {
   assert.equal(problems[0].rule, 'placeholder');
 });
 
+// playcheck-depth task 3: the app folder placeholder.
+test('strict names both placeholders in its one problem', async (t) => {
+  const problems = await run(t, null, { strict: true });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0].message, /<KIT_REPO>/);
+  assert.match(problems[0].message, /<APP_DIR>/);
+});
+
+test('strict names <APP_DIR> alone when only that one is left', async (t) => {
+  const problems = await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-garden'].args = ['C:/kit/kit/mcp/dist/server.js', '--game', 'C:/kit/apps/garden'];
+    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', 'C:/kit'];
+  }, { strict: true });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0].message, /<APP_DIR>/);
+  assert.doesNotMatch(problems[0].message, /<KIT_REPO>/);
+});
+
+test('strict passes when both placeholders are replaced', async (t) => {
+  assert.deepEqual(await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-garden'].args = ['C:/kit/kit/mcp/dist/server.js', '--game', 'C:/kit/apps/garden'];
+    c.manifest.mcpServers['playcheck-commits'].args = ['C:/app/tools/commit-watch.mjs', 'C:/kit'];
+  }, { strict: true }), []);
+});
+
 test('bad JSON in app.json', async (t) => {
   assertRule(await run(t, (c) => { c.raw['app.json'] = '{'; }), 'json');
 });
@@ -169,6 +198,28 @@ test('extra cron key', async (t) => {
 
 test('agent without model', async (t) => {
   assertRule(await run(t, (c) => { delete c.agent.model; }), 'required-fields');
+});
+
+// playcheck-depth task 1: the agent tools and the declared servers must match.
+test('agent tool names a server that mcpServers does not declare', async (t) => {
+  const problems = await run(t, (c) => { c.agent.tools.push('@playcheck:playcheck-runner'); });
+  assertRule(problems, 'agent-tools');
+  assert.ok(problems.some((p) => p.rule === 'agent-tools' && p.message.includes('playcheck-runner')));
+});
+
+test('declared server is not in the agent tools', async (t) => {
+  const problems = await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-runner'] = {
+      command: 'node',
+      args: ['<KIT_REPO>/kit/mcp/dist/server.js', '--game', '<KIT_REPO>/apps/runner'],
+    };
+  });
+  assertRule(problems, 'agent-tools');
+  assert.ok(problems.some((p) => p.rule === 'agent-tools' && p.message.includes('playcheck-runner')));
+});
+
+test('agent tool of another form is not judged', async (t) => {
+  assert.deepEqual(await run(t, (c) => { c.agent.tools.push('@kirocrew-core'); }), []);
 });
 
 test('agent path goes up', async (t) => {

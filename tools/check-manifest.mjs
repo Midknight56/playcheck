@@ -17,7 +17,11 @@ export const ALLOWED = {
   frontMatter: ['name', 'description', 'triggers', 'always'],
 };
 
-const PLACEHOLDER = '<KIT_REPO>';
+// Both are replaced by hand before install: the kit folder, and the folder that holds this app.
+const PLACEHOLDERS = [
+  ['<KIT_REPO>', 'the path of the kit repository'],
+  ['<APP_DIR>', 'the path of the folder that holds this app'],
+];
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 
@@ -168,6 +172,17 @@ export function checkRepo(root, options = {}) {
       }
       if (!Array.isArray(agent.tools) || agent.tools.length === 0) {
         add(entry, 'required-fields', '"tools" must be a non-empty list');
+      } else if (isText(manifest.name)) {
+        // Entries of the form @<app>:<server> must match mcpServers both ways. Other forms are not judged.
+        const declared = isPlainObject(manifest.mcpServers) ? Object.keys(manifest.mcpServers) : [];
+        const prefix = `@${manifest.name}:`;
+        const named = agent.tools.filter((tool) => typeof tool === 'string' && tool.startsWith(prefix)).map((tool) => tool.slice(prefix.length));
+        for (const server of named) {
+          if (!declared.includes(server)) add(entry, 'agent-tools', `the tool "${prefix}${server}" names a server that mcpServers does not declare`);
+        }
+        for (const server of declared) {
+          if (!named.includes(server)) add(entry, 'agent-tools', `the server "${server}" is declared in mcpServers and is not in the agent tools as "${prefix}${server}"`);
+        }
       }
     });
 
@@ -284,8 +299,11 @@ export function checkRepo(root, options = {}) {
     // strict: the placeholder must be replaced
     if (options.strict) {
       const text = readText(path.join(rootFull, manifestFile)) ?? '';
-      if (text.includes(PLACEHOLDER)) {
-        add(manifestFile, 'placeholder', `${PLACEHOLDER} is still in the file; replace it with the path of the kit repository`);
+      const left = PLACEHOLDERS.filter(([name]) => text.includes(name));
+      if (left.length > 0) {
+        const names = left.map(([name]) => name).join(' and ');
+        const advice = left.map(([name, meaning]) => `replace ${name} with ${meaning}`).join('; ');
+        add(manifestFile, 'placeholder', `${names} ${left.length === 1 ? 'is' : 'are'} still in the file; ${advice}`);
       }
     }
   }

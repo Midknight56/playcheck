@@ -1,6 +1,6 @@
 {
   "name": "playcheck",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Playcheck",
   "description": "A Crew agent that plays a game built with the kit through its tool door and reports what it saw.",
   "author": "Adrian Ferguson",
@@ -17,6 +17,21 @@
         "--game",
         "<KIT_REPO>/apps/garden"
       ]
+    },
+    "playcheck-runner": {
+      "command": "node",
+      "args": [
+        "<KIT_REPO>/kit/mcp/dist/server.js",
+        "--game",
+        "<KIT_REPO>/apps/runner"
+      ]
+    },
+    "playcheck-commits": {
+      "command": "node",
+      "args": [
+        "<APP_DIR>/tools/commit-watch.mjs",
+        "<KIT_REPO>"
+      ]
     }
   },
   "crons": [
@@ -25,7 +40,7 @@
       "cron_expr": "0 3 * * *",
       "agent": "playcheck-tester",
       "enabled": false,
-      "message": "List the levels with new_game. Play the first three to a won status. For each level report the level id, the seed, the actions sent, the final status and the state hash. Save a replay only for a result that does not match the rules."
+      "message": "Call kit_commit first. If changed is false, report \"no new commit\" with the hash and stop. If changed is true, call kit_proof with game garden and with game runner, with no level, to list the levels. For every level of both games, call kit_proof with the game and the level, run the returned replay with the replay tool of the same game, and report the final hash of the answer against the finalHash of the proof, as match or mismatch. Then play garden level g01 by hand and runner level r01 by hand through new_game and act. For each report the level id, the seed, the actions sent, the final status and the state hash. Save a replay only for a result that does not match the rules. At the end call mark_checked with the hash from kit_commit and a one line result."
     }
   ],
   "dependencies": {
