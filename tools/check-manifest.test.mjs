@@ -50,7 +50,7 @@ function validManifest() {
       },
       'playcheck-commits': {
         command: 'node',
-        args: ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>'],
+        args: ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>', '--state', '<APP_DIR>/data'],
       },
     },
     crons: [
@@ -144,7 +144,7 @@ test('strict names both placeholders in its one problem', async (t) => {
 test('strict names <APP_DIR> alone when only that one is left', async (t) => {
   const problems = await run(t, (c) => {
     c.manifest.mcpServers['playcheck-garden'].args = ['C:/kit/kit/mcp/dist/server.js', '--game', 'C:/kit/apps/garden'];
-    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', 'C:/kit'];
+    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', 'C:/kit', '--state', '<APP_DIR>/data'];
   }, { strict: true });
   assert.equal(problems.length, 1);
   assert.match(problems[0].message, /<APP_DIR>/);
@@ -154,10 +154,63 @@ test('strict names <APP_DIR> alone when only that one is left', async (t) => {
 test('strict passes when both placeholders are replaced', async (t) => {
   assert.deepEqual(await run(t, (c) => {
     c.manifest.mcpServers['playcheck-garden'].args = ['C:/kit/kit/mcp/dist/server.js', '--game', 'C:/kit/apps/garden'];
-    c.manifest.mcpServers['playcheck-commits'].args = ['C:/app/tools/commit-watch.mjs', 'C:/kit'];
+    c.manifest.mcpServers['playcheck-commits'].args = ['C:/app/tools/commit-watch.mjs', 'C:/kit', '--state', 'C:/app/data'];
   }, { strict: true }), []);
 });
 
+// playcheck-depth task 5: the state folder is named in app.json.
+test('playcheck-commits without --state is a problem', async (t) => {
+  assertRule(await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>'];
+  }), 'state-arg');
+});
+
+test('playcheck-commits with --state and no folder after it is a problem', async (t) => {
+  assertRule(await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>', '--state'];
+  }), 'state-arg');
+  assertRule(await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-commits'].args = ['<APP_DIR>/tools/commit-watch.mjs', '<KIT_REPO>', '--state', '--other'];
+  }), 'state-arg');
+});
+
+test('strict names the state folder next to <APP_DIR>', async (t) => {
+  const problems = await run(t, null, { strict: true });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0].message, /<APP_DIR>\/data/);
+});
+
+test('strict fails a state folder that is not under <APP_DIR> or a replaced app folder', async (t) => {
+  const problems = await run(t, (c) => {
+    c.manifest.mcpServers['playcheck-garden'].args = ['C:/kit/kit/mcp/dist/server.js', '--game', 'C:/kit/apps/garden'];
+    c.manifest.mcpServers['playcheck-commits'].args = ['C:/app/tools/commit-watch.mjs', 'C:/kit', '--state', 'C:/tmp'];
+  }, { strict: true });
+  assertRule(problems, 'state-arg');
+});
+
+// playcheck-depth task 6: the README tells what the runs of 2026-11-20 showed.
+test('the real README holds the run 2 text, copied unchanged from docs/crew-runs-2026-11-20.md', () => {
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
+  const runs = fs.readFileSync(path.join(repo, 'docs/crew-runs-2026-11-20.md'), 'utf8');
+  const start = runs.indexOf('All six runner levels match.');
+  const end = runs.indexOf('## Run 3');
+  assert.ok(start > 0 && end > start);
+  const quoted = runs.slice(start, end).trimEnd().split('\n').map((line) => (line === '' ? '>' : `> ${line}`)).join('\n');
+  assert.ok(readme.includes(quoted), 'run 2 is not in the README as a quoted block');
+});
+
+test('the real README names the three job steps, the manual run, and what was not run', () => {
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
+  for (const text of ['agent.apps_trusted', 'cron update <job id> --approval-mode auto', 'cron resume <job id>',
+    'cron trigger <job id>', 'was not tried', 'was not run on 2026-11-20', 'was not yet run on Crew', '--state',
+    'Error: cannot reach gateway']) {
+    assert.ok(readme.includes(text), `the README does not hold: ${text}`);
+  }
+  assert.doesNotMatch(readme, /This version of the job has not run/);
+  assert.doesNotMatch(readme, /Version 0\.2\.0[^.]*has not been installed/);
+});
 test('bad JSON in app.json', async (t) => {
   assertRule(await run(t, (c) => { c.raw['app.json'] = '{'; }), 'json');
 });

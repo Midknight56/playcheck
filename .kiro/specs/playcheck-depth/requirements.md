@@ -62,3 +62,14 @@ The steering files describe the first version. This spec changes three of their 
 
 ### Requirement 5: README
 1. The README SHALL describe only what the files prove, say nothing about an install route that was not tried, and not say that the new nightly job ran.
+
+### Requirement 6: State folder (added after the first Crew runs of 2026-11-20)
+**User Story:** As a game maker, I want the stored commit to survive from one run to the next.
+
+#### Acceptance Criteria
+1. Crew gave each run a new temp folder, and the state file was lost between runs 2 and 3. `app.json` SHALL give `playcheck-commits` the arguments `--state` and `<APP_DIR>/data`. The checker SHALL fail an entry without `--state`, and strict mode SHALL fail a state folder that is not `data` in the app folder.
+2. Two server processes started one after the other with the same `--state` folder SHALL share the stored hash. A state folder that does not exist SHALL be created by `mark_checked`.
+3. The README SHALL not tell the reader to rely on `KIROCREW_APP_DATA` or the temp folder. The server MAY keep both as the fallback of a bare run. The version SHALL be `0.2.1` and the job SHALL stay `"enabled": false`.
+
+### Requirement 7: README from the runs
+1. "Install and enable", "The nightly job" and "A real run" SHALL state only what the runs of 2026-11-20 showed, with the result text of run 2 copied from `docs/crew-runs-2026-11-20.md`. The dashboard route SHALL be said to be not tried. The fix of 0.2.1 SHALL be said to be not yet run on Crew.

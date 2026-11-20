@@ -353,6 +353,33 @@ test('mark_checked makes the state folder when it is missing', async (t) => {
   assert.deepEqual(fs.readdirSync(state), [STATE_FILE]);
 });
 
+test('two servers started one after the other with the same --state folder share the stored hash', async (t) => {
+  const kit = makeKit(t);
+  const state = tempDir(t, 'state');
+  const first = await open(t, kit, state);
+  const { value: one } = await first.call('kit_commit');
+  assert.equal(one.changed, true);
+  assert.equal((await first.call('mark_checked', { hash: one.hash, result: 'run one' })).isError, false);
+  first.child.kill();
+  await first.exit();
+
+  const second = await open(t, kit, state, { KIROCREW_APP_DATA: undefined });
+  const { value: two } = await second.call('kit_commit');
+  assert.equal(two.stored, one.hash);
+  assert.equal(two.changed, false);
+});
+
+test('a state folder that does not exist is created, with its parents, by mark_checked', async (t) => {
+  const state = path.join(tempDir(t, 'parent'), 'apps', 'playcheck', 'data');
+  assert.equal(fs.existsSync(state), false);
+  const client = await open(t, makeKit(t), state);
+  const { value } = await client.call('kit_commit');
+  assert.equal(value.changed, true);
+  assert.equal(fs.existsSync(state), false, 'kit_commit must not create the folder');
+  assert.equal((await client.call('mark_checked', { hash: value.hash, result: 'ok' })).isError, false);
+  assert.ok(fs.statSync(state).isDirectory());
+  assert.deepEqual(fs.readdirSync(state), [STATE_FILE]);
+});
 test('the server writes nothing in the kit folder', async (t) => {
   const kit = makeKit(t);
   const state = tempDir(t, 'state');

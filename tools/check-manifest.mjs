@@ -20,7 +20,7 @@ export const ALLOWED = {
 // Both are replaced by hand before install: the kit folder, and the folder that holds this app.
 const PLACEHOLDERS = [
   ['<KIT_REPO>', 'the path of the kit repository'],
-  ['<APP_DIR>', 'the path of the folder that holds this app'],
+  ['<APP_DIR>', 'the path of the folder that holds this app (the state folder is <APP_DIR>/data, after --state)'],
 ];
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEMVER_RE = /^\d+\.\d+\.\d+$/;
@@ -238,6 +238,24 @@ export function checkRepo(root, options = {}) {
               }
             }
           }
+        }
+      }
+    }
+
+    // playcheck-commits: a Crew run's temp folder is new each time, so the state needs --state.
+    const commits = isPlainObject(manifest.mcpServers) ? manifest.mcpServers['playcheck-commits'] : undefined;
+    if (isPlainObject(commits) && Array.isArray(commits.args)) {
+      const at = commits.args.indexOf('--state');
+      const value = at === -1 ? undefined : commits.args[at + 1];
+      if (at === -1) {
+        add(manifestFile, 'state-arg', 'mcpServers "playcheck-commits" needs "--state", "<APP_DIR>/data" in "args"; without it the state file is lost between runs');
+      } else if (typeof value !== 'string' || value === '' || value.startsWith('--')) {
+        add(manifestFile, 'state-arg', 'mcpServers "playcheck-commits": "--state" must be followed by a folder');
+      } else if (options.strict) {
+        const script = String(commits.args[0] ?? '').replace(/\\/g, '/');
+        const expected = script.replace(/\/tools\/commit-watch\.mjs$/, '/data');
+        if (expected !== script && value.replace(/\\/g, '/') !== expected) {
+          add(manifestFile, 'state-arg', `mcpServers "playcheck-commits": "--state" must be "${expected}", the data folder of the app`);
         }
       }
     }

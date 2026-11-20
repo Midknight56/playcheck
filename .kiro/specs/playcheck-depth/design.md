@@ -67,3 +67,11 @@ The skill gets a section for the three servers and the report, and its tick sect
 ## Not decided here
 
 Whether Crew keeps tools of two servers with the same names apart is not seen. The README says so under Limits.
+
+## State folder (task 5)
+
+`playcheck-commits` args become `["<APP_DIR>/tools/commit-watch.mjs", "<KIT_REPO>", "--state", "<APP_DIR>/data"]`. The checker has the rule `state-arg`: the entry needs `--state` with a folder after it. In strict mode the folder must equal the script folder with `tools/commit-watch.mjs` replaced by `data`. The server is unchanged: its fallback to `KIROCREW_APP_DATA` and the temp folder stays for a bare run. Version `0.2.1`.
+
+## README from the runs (task 6)
+
+The three sections are rewritten from the facts of 2026-11-20. Run 2 is quoted from `docs/crew-runs-2026-11-20.md`, and a checker test compares the quoted block with that file.

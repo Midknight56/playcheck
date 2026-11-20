@@ -24,3 +24,15 @@ Rules for every task: write the tests first and see them fail for the right reas
   - Update "At a glance", the file list, the set the path part, the nightly job and the Limits line about the runner. State nothing about an install route that was not tried, and nothing about the new job having run.
   - Verify: `npm run verify` exits 0. Search the files for the owner's folder names and key patterns.
   - _Requirements: 5.1_
+
+- [x] 5. State folder in app.json (defect of the first Crew runs)
+  - Tests first: checker cases for rule `state-arg` (no `--state`, `--state` with no folder, strict names the folder, strict refuses another folder); two `commit-watch.test.mjs` cases (second server with the same `--state` shares the hash; a missing state folder is created).
+  - Then: `--state`, `<APP_DIR>/data` in `app.json`, the rule and the strict message in the checker, the README path and state sections, version `0.2.1` in `app.json` and `package.json`.
+  - Verify: `npm run verify`.
+  - _Requirements: 6.1 to 6.3_
+
+- [x] 6. README from the first Crew runs
+  - Tests first: two checker-test cases read the real README (run 2 text quoted from the runs file; the three job steps, the manual run, and what was not tried or not run).
+  - Then: rewrite "Install and enable", "The nightly job" and "A real run".
+  - Verify: `npm run verify`.
+  - _Requirements: 7.1_

@@ -1,6 +1,6 @@
 {
   "name": "playcheck",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "displayName": "Playcheck",
   "description": "A Crew agent that plays a game built with the kit through its tool door and reports what it saw.",
   "author": "Adrian Ferguson",
@@ -30,7 +30,9 @@
       "command": "node",
       "args": [
         "<APP_DIR>/tools/commit-watch.mjs",
-        "<KIT_REPO>"
+        "<KIT_REPO>",
+        "--state",
+        "<APP_DIR>/data"
       ]
     }
   },
