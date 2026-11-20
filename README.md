@@ -82,7 +82,19 @@ Seen on Kiro Crew 0.12.2, Windows, with app version 0.2.0:
 - `kirocrew app enable playcheck` was refused: `blocked by execution policy: third-party app execution is disabled; trust this app alone from the dashboard's App Store ... (agent.apps_trusted)`.
 - After `kirocrew config set agent.apps_trusted --value-base64=<base64 of the JSON list with "playcheck" added>`, the enable printed `Recorded playcheck as enabled. No running gateway was reached, so this takes effect at the next gateway start ...`, `Agents registered: 1`, `Skills registered: 1` and `registered 1 cron job(s) with scheduler`. The job started paused.
 
-The dashboard route, Apps then Install from local path, was not tried.
+### Dashboard, 2026-11-20
+
+The dashboard route was tried on Kiro Crew 0.12.2, Windows, with app version 0.2.1. Here is what was done and what was seen:
+
+- The very first start of a fresh dashboard showed an import setup screen, a privacy screen and a look screen. The privacy screen has an anonymous usage heartbeat switch that is on by default. The three screens can be skipped.
+- In the dashboard, Discover has a database icon at the top right, named "Manage app sources". It opens a panel with "External Registries" and an "Install from Path" box. The box says it is the same as `kirocrew app install <path>`.
+- The folder of the prepared copy, with the placeholders replaced, was typed into the "Install from Path" box. Install was pressed.
+- Afterwards `kirocrew app list` showed `playcheck 0.2.1 disabled`, and `kirocrew app info playcheck` showed origin `local`.
+- In Library, the Playcheck tile has an Enable button. Pressing it opened a dialog titled `Trust "Playcheck" to run its own code?`.
+- The dialog lists three things the trust allows: run its own code inside Kiro Crew with the same access Kiro Crew has, keep a program of its own running in the background, and run commands from a list the app ships with. It says that trusting grants all three.
+- The dialog has two buttons, Cancel and "Trust this app and enable". Cancel was pressed.
+- So version 0.2.1 is installed and switched off, and it has not run on Crew.
+- The uninstall of 0.2.0 earlier had dropped `playcheck` from `agent.apps_trusted`, so the trust had to be given again.
 
 ### 2026-11-16
 

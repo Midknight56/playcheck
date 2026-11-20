@@ -36,3 +36,9 @@ Rules for every task: write the tests first and see them fail for the right reas
   - Then: rewrite "Install and enable", "The nightly job" and "A real run".
   - Verify: `npm run verify`.
   - _Requirements: 7.1_
+
+- [x] 7. README: the dashboard route (fact E of 2026-11-20)
+  - Tests first: a README case that the README no longer says the dashboard route was not tried and names `Install from Path` and the trust dialog. See it fail. The old case loses its `was not tried` text, which is no longer true.
+  - Then: replace the one sentence in "Install and enable" with a short section "Dashboard, 2026-11-20".
+  - Verify: `npm run verify`.
+  - _Requirements: 8.1_

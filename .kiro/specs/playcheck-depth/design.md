@@ -75,3 +75,7 @@ Whether Crew keeps tools of two servers with the same names apart is not seen. T
 ## README from the runs (task 6)
 
 The three sections are rewritten from the facts of 2026-11-20. Run 2 is quoted from `docs/crew-runs-2026-11-20.md`, and a checker test compares the quoted block with that file.
+
+## Dashboard route (task 7)
+
+The README section "Dashboard, 2026-11-20" lists the facts of the dashboard install in the order they were seen. A checker test reads the real README. It fails when the old sentence is back, or when `Install from Path`, `Manage app sources`, the dialog title, the button text or `playcheck 0.2.1 disabled` is missing.

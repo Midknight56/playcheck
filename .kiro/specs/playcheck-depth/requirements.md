@@ -73,3 +73,6 @@ The steering files describe the first version. This spec changes three of their 
 
 ### Requirement 7: README from the runs
 1. "Install and enable", "The nightly job" and "A real run" SHALL state only what the runs of 2026-11-20 showed, with the result text of run 2 copied from `docs/crew-runs-2026-11-20.md`. The dashboard route SHALL be said to be not tried. The fix of 0.2.1 SHALL be said to be not yet run on Crew.
+
+### Requirement 8: Dashboard route (added 2026-11-20)
+1. The README SHALL replace the sentence that says the dashboard route was not tried with what was done and seen: the database icon "Manage app sources" in Discover, the "Install from Path" box, `playcheck 0.2.1 disabled` and origin `local`, the Enable button in Library, the trust dialog with its three items and its two buttons, Cancel pressed, and the screens of the first start. It SHALL state nothing beyond that. For the dashboard route this replaces the first sentence of requirement 7.1.

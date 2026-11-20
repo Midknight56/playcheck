@@ -204,12 +204,22 @@ test('the real README names the three job steps, the manual run, and what was no
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
   for (const text of ['agent.apps_trusted', 'cron update <job id> --approval-mode auto', 'cron resume <job id>',
-    'cron trigger <job id>', 'was not tried', 'was not run on 2026-11-20', 'was not yet run on Crew', '--state',
+    'cron trigger <job id>', 'was not run on 2026-11-20', 'was not yet run on Crew', '--state',
     'Error: cannot reach gateway']) {
     assert.ok(readme.includes(text), `the README does not hold: ${text}`);
   }
   assert.doesNotMatch(readme, /This version of the job has not run/);
   assert.doesNotMatch(readme, /Version 0\.2\.0[^.]*has not been installed/);
+});
+// playcheck-depth task 7: the dashboard route was tried on 2026-11-20 (fact E).
+test('the real README tells that the dashboard route was tried, and names Install from Path and the trust dialog', () => {
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
+  assert.doesNotMatch(readme, /dashboard route[^.]*was not tried/);
+  for (const text of ['Install from Path', 'Manage app sources', 'Trust "Playcheck" to run its own code?',
+    'Trust this app and enable', 'playcheck 0.2.1 disabled']) {
+    assert.ok(readme.includes(text), `the README does not hold: ${text}`);
+  }
 });
 test('bad JSON in app.json', async (t) => {
   assertRule(await run(t, (c) => { c.raw['app.json'] = '{'; }), 'json');
