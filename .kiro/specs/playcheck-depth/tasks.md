@@ -42,3 +42,9 @@ Rules for every task: write the tests first and see them fail for the right reas
   - Then: replace the one sentence in "Install and enable" with a short section "Dashboard, 2026-11-20".
   - Verify: `npm run verify`.
   - _Requirements: 8.1_
+
+- [x] 8. README: the first runs of 0.2.1 on Crew (20 Nov 2026)
+  - Tests first: three README cases (no sentence that 0.2.1 has not run or is switched off; runs 4 and 5, the trust, the data folder path and the sentence of the agent about the proof's action lists; no "won by hand" and the limits line). See them fail. The old case loses its `was not yet run on Crew` text, which is no longer true.
+  - Then: change "At a glance", "What you need", "Dashboard, 2026-11-20", "Run it now", "A real run" and "Limits". For runs 2 and 3 write only what the text reports.
+  - Verify: `npm run verify`.
+  - _Requirements: 9.1, 9.2, 9.3_

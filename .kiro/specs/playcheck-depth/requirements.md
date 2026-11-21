@@ -76,3 +76,8 @@ The steering files describe the first version. This spec changes three of their 
 
 ### Requirement 8: Dashboard route (added 2026-11-20)
 1. The README SHALL replace the sentence that says the dashboard route was not tried with what was done and seen: the database icon "Manage app sources" in Discover, the "Install from Path" box, `playcheck 0.2.1 disabled` and origin `local`, the Enable button in Library, the trust dialog with its three items and its two buttons, Cancel pressed, and the screens of the first start. It SHALL state nothing beyond that. For the dashboard route this replaces the first sentence of requirement 7.1.
+
+### Requirement 9: First runs of 0.2.1 on Crew (added 2026-11-20)
+1. The README SHALL say that version 0.2.1 was trusted by the owner in the dashboard, enabled, and run twice on Kiro Crew 0.12.2, with the results of `docs/crew-runs-2026-11-20.md` (runs 4 and 5), and SHALL NOT say that 0.2.1 has not run or is switched off. This replaces the last sentence of requirement 7.1.
+2. For runs 2 to 4 the README SHALL say only what each run text says. Run 4 says the proof's action lists were sent. Runs 2 and 3 do not say where the actions came from, so the README gives level, seed, actions, status and hash for them.
+3. The "Limits" list SHALL say that the hand play in these runs replayed the proof's own action lists, so it shows that the tool door and the rules agree, and is not a test of how an agent finds a win.

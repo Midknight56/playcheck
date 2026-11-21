@@ -79,3 +79,7 @@ The three sections are rewritten from the facts of 2026-11-20. Run 2 is quoted f
 ## Dashboard route (task 7)
 
 The README section "Dashboard, 2026-11-20" lists the facts of the dashboard install in the order they were seen. A checker test reads the real README. It fails when the old sentence is back, or when `Install from Path`, `Manage app sources`, the dialog title, the button text or `playcheck 0.2.1 disabled` is missing.
+
+## First runs of 0.2.1 (task 8)
+
+Three README cases read the real README and the runs file. They fail when the sentences "not yet run on Crew", "has not run on Crew" or "installed and switched off" are present, when a sentence says the agent won by hand, or when the data folder path, the hash of the kit commit, the answer `No new commit`, the agent's sentence about the proof's action lists or the limits line is missing. The README quotes run 5 whole and the hand play table and closing text of run 4.

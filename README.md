@@ -6,13 +6,13 @@ The app has one agent, one skill, three tool servers and one nightly job that sh
 
 ## At a glance
 
-**Value/usefulness.** A small game changes every day and nobody replays every level after each change. With this app a Crew agent plays the game for you through the same tool door a person's game uses, and reports the level, seed, actions, final status and state hash. It plays two games, the garden puzzle and the runner. The nightly job asks first whether the kit has a commit that was not checked yet, and when it has none, the report is `no new commit` with the hash. When there is a new commit, the agent replays the kit's proof of every level and compares the final hashes, then plays one level of each game by hand. A run on Kiro Crew 0.12.2 (app version 0.1.0) won level g01 of the garden puzzle and gave the hash `d836baac0f60ae09`; the kit's tool door replayed it and got the same hash. On 2026-11-20 a script, not an agent, ran the steps of the nightly job against kit commit `847e6e1`: all 18 proof replays (12 garden levels, 6 runner levels) gave the final hash and phase of the proof. The job is off after install, so the schedule does not run until you switch it on with `kirocrew cron resume <job id>`. A manual run with `kirocrew cron trigger <job id>` uses your credits too.
+**Value/usefulness.** A small game changes every day and nobody replays every level after each change. With this app a Crew agent plays the game for you through the same tool door a person's game uses, and reports the level, seed, actions, final status and state hash. It plays two games, the garden puzzle and the runner. The nightly job asks first whether the kit has a commit that was not checked yet, and when it has none, the report is `no new commit` with the hash. When there is a new commit, the agent replays the kit's proof of every level and compares the final hashes, then plays one level of each game by hand. A run on Kiro Crew 0.12.2 (app version 0.1.0) won level g01 of the garden puzzle and gave the hash `d836baac0f60ae09`; the kit's tool door replayed it and got the same hash. On 2026-11-20 a script, not an agent, ran the steps of the nightly job against kit commit `847e6e1`: all 18 proof replays (12 garden levels, 6 runner levels) gave the final hash and phase of the proof. On 2026-11-20 version 0.2.1 was also enabled and run twice on Kiro Crew 0.12.2 with `kirocrew cron trigger`. Run 4 saw a new kit commit, matched all 18 proof replays and ended garden g01 and runner r01 as won with the hashes of their proofs, in 36.6 seconds and 1.2202 credits. The agent wrote that it sent the proof's action lists for those two levels. Run 5 started right after and answered `No new commit` with the same hash, in 3.0 seconds and 0.1241 credits. The job ships switched off, so the schedule does not run until you switch it on with `kirocrew cron resume <job id>`. A manual run with `kirocrew cron trigger <job id>` uses your credits too.
 
 **Technical innovation/idea.** The agent does not guess from screenshots. It talks to the game through an MCP server built from the game's own rules, so every move it reports can be replayed and checked to the exact state. A proof in the kit is a seed, a list of actions and a final hash. The new server `tools/commit-watch.mjs` hands those proofs to the agent, the agent runs each one on the replay tool of the game, and the check of a whole kit becomes a comparison of hashes, not an opinion. `commit-watch.mjs` is plain Node with no package. It speaks the Model Context Protocol over standard input and output, runs no command but `git`, writes one state file, and refuses a game or level name that holds anything but letters, digits and hyphens. It has its own test file, which runs the server on a throwaway git repository. The agent has no file tool and no shell tool, only the tools of the three servers. The app adds no game code: it is one manifest, one agent, one skill, three tool server entries and one small server on top of the Skeleton kit repository (https://github.com/Midknight56/skeleton-kit).
 
 ## What you need
 
-- Kiro Crew, running (`kirocrew gateway`). Versions 0.1.0 and 0.2.0 of the app were installed and run on Kiro Crew 0.12.2 on Windows. Version 0.2.1 was not yet run on Crew.
+- Kiro Crew, running (`kirocrew gateway`). Versions 0.1.0, 0.2.0 and 0.2.1 of the app were installed and run on Kiro Crew 0.12.2 on Windows.
 - Node 20 or newer. The manifest lists `node` under `dependencies.commands`, so Crew blocks the install without it.
 - `git` on the path. `commit-watch.mjs` runs it on the kit folder. The manifest does not list it.
 - The kit repository, https://github.com/Midknight56/skeleton-kit, cloned to a folder called `<KIT_REPO>` below.
@@ -92,9 +92,9 @@ The dashboard route was tried on Kiro Crew 0.12.2, Windows, with app version 0.2
 - Afterwards `kirocrew app list` showed `playcheck 0.2.1 disabled`, and `kirocrew app info playcheck` showed origin `local`.
 - In Library, the Playcheck tile has an Enable button. Pressing it opened a dialog titled `Trust "Playcheck" to run its own code?`.
 - The dialog lists three things the trust allows: run its own code inside Kiro Crew with the same access Kiro Crew has, keep a program of its own running in the background, and run commands from a list the app ships with. It says that trusting grants all three.
-- The dialog has two buttons, Cancel and "Trust this app and enable". Cancel was pressed.
-- So version 0.2.1 is installed and switched off, and it has not run on Crew.
+- The dialog has two buttons, Cancel and "Trust this app and enable". Cancel was pressed the first time.
 - The uninstall of 0.2.0 earlier had dropped `playcheck` from `agent.apps_trusted`, so the trust had to be given again.
+- Later the same day the owner pressed "Trust this app and enable" in the dashboard himself. After that `kirocrew config get agent.apps_trusted` listed `playcheck`, and `kirocrew app list` showed `playcheck 0.2.1 enabled`.
 
 ### 2026-11-16
 
@@ -155,7 +155,9 @@ On Kiro Crew 0.12.2 the dashboard Schedule page listed the job of version 0.1.0 
 
 The manual run on 2026-11-20 used `kirocrew cron trigger <job id>`. With no gateway running it printed `Error: cannot reach gateway. Is `kirocrew gateway` running?`. With `kirocrew gateway` running it printed `Triggered job: playcheck/nightly-play (ccb2ee69)`.
 
-Three runs followed, with app version 0.2.0. Their result texts, as the agent wrote them, are in `docs/crew-runs-2026-11-20.md`. Run 1 failed for the reason above. Runs 2 and 3 matched 18 of 18 proof replays at kit commit `7e8463fb00d2169ba273156196a954ac56a7eb31`, and won garden g01 and runner r01 by hand, in 45 and 43 seconds, with 1.54 and 1.22 credits as the Crew result rows say.
+Three runs followed, with app version 0.2.0. Their result texts, as the agent wrote them, are in `docs/crew-runs-2026-11-20.md`. Run 1 failed for the reason above. Runs 2 and 3 matched 18 of 18 proof replays at kit commit `7e8463fb00d2169ba273156196a954ac56a7eb31`, in 45 and 43 seconds, with 1.54 and 1.22 credits as the Crew result rows say. For garden g01 and runner r01 they report level, seed 1, the actions sent, status won and the hash of the proof. They do not say where the actions came from.
+
+Two more runs followed on the same day with app version 0.2.1, after the owner trusted and enabled the app (see "Dashboard, 2026-11-20"). A gateway was started for them, and the job was set to `--approval-mode auto`. Both were started with `kirocrew cron trigger`, and their texts are at the end of the same file. Run 4, kit commit `46decffc1423863afb37ce4396f64c55e20c33cb`, was a new commit. It matched all 18 proof replays, and g01 and r01 ended won with the hashes of their proofs, in 36.6 seconds and 1.2202 credits as the Crew result row says. Run 5 started right after and answered `No new commit` with the same hash, which matched the stored one, in 3.0 seconds and 0.1241 credits. `mark_checked` in run 4 wrote `playcheck-commit-state.json` in the data folder of the app, `~/.kiro/crew/apps/playcheck/data/playcheck-commit-state.json`. So the state now survives from one run to the next, which version 0.2.0 did not do.
 
 ## When a tool server does not start
 
@@ -224,13 +226,38 @@ Kiro Crew 0.12.2, app version 0.2.0, model `auto`, started with `kirocrew cron t
 >
 > Both hashes equal the proof hashes. Nothing broke the rules, so I saved no replay. `mark_checked` stored the commit hash.
 
-Run 1 of the same job failed (see "The nightly job"). Run 3 gave the same tables. It also said that the commit was new and that nothing was stored before, although run 2 had called `mark_checked`. That is the defect in the next part.
+Run 1 of the same job failed (see "The nightly job"). Run 3 gave the same tables. It also said that the commit was new and that nothing was stored before, although run 2 had called `mark_checked`. That is the defect in the next part. The result text of run 2 reports the level, the seed, the actions, the status and the hash of g01 and r01. It does not say where the actions came from.
 
 ### What was found and fixed in 0.2.1
 
 The state file `playcheck-commit-state.json` was found in two folders, `~/.kiro/crew/scratch/runtime-0066821e/` and `~/.kiro/crew/scratch/runtime-cf41762d/`. So the temp folder of a run is new each time, and the fallback to the temp folder lost the state. `KIROCREW_APP_DATA` was not set in the run, because the file was not in the data folder of the app, `~/.kiro/crew/apps/playcheck/data`.
 
-Version 0.2.1 gives the `playcheck-commits` entry the arguments `--state` and `<APP_DIR>/data`. After the fix the state is kept in the data folder of the app. The checker fails an `app.json` whose entry has no `--state`. This fix was not yet run on Crew when this README was written. The lane that runs it adds one line here afterwards.
+Version 0.2.1 gives the `playcheck-commits` entry the arguments `--state` and `<APP_DIR>/data`. After the fix the state is kept in the data folder of the app. The checker fails an `app.json` whose entry has no `--state`. The runs 4 and 5 below ran this fix on Crew.
+
+### 2026-11-20, version 0.2.1, runs 4 and 5
+
+Kiro Crew 0.12.2, model `auto`, started with `kirocrew cron trigger` on a gateway started for the purpose, with `--approval-mode auto` set on the job. The text of each run is copied from `docs/crew-runs-2026-11-20.md`, as the agent wrote it.
+
+Run 4 took 36.6 seconds and 1.2202 credits as the Crew result row says. The kit commit `46decffc1423863afb37ce4396f64c55e20c33cb` was new. The agent's text had the table of 18 proof replays, all `match`, and this table and closing text:
+
+> **Played by hand**
+>
+> | Level | Seed | Actions sent | Status | Hash |
+> |---|---|---|---|---|
+> | g01 | 1 | `light:1`, `wait` | won, score 2 | d836baac0f60ae09 |
+> | r01 | 1 | `none*135`, `jump`, `none*139`, `jump`, `none*162`, `jump`, `none*248` | won, score 130 | 4503bc41e7b255cd |
+>
+> I sent the proof's action lists for these two levels rather than finding my own. The hand-played hashes equal the proof hashes. `mark_checked` is stored for that hash.
+
+So the two levels of run 4 replayed the proof's own actions. The same actions and hashes appear in runs 2 and 3, and those texts do not say where the actions came from.
+
+The state file was then found at `~/.kiro/crew/apps/playcheck/data/playcheck-commit-state.json`, the data folder of the app.
+
+Run 5 started right after run 4. It took 3.0 seconds and 0.1241 credits as the Crew result row says. Its whole text:
+
+> No new commit. The hash is `46decffc1423863afb37ce4396f64c55e20c33cb`, and it matches the stored one.
+
+The stored hash came from run 4 through the data folder, so the fix of 0.2.1 worked in these two runs. Only two runs were made, on one kit commit.
 
 ### 2026-11-16, the garden puzzle, level g01
 
@@ -255,6 +282,7 @@ That replay object, sent by hand to a fresh tool door with no `save`, gave `{"ok
 - The garden puzzle and the runner have a tool door entry. Each needs its game built in the kit repository (`npm run build:apps`).
 - Both games have tools with the same names (`new_game`, `act`, `observe`, `render`, `replay`). The kit's own log of 2026-11-16 saw one Kiro engine show the tools of only one of two such servers. Whether Crew keeps them apart was not seen. The agent prompt tells the agent to use the set of the game that the level belongs to, and that `unknown_level` means it used the other set.
 - A matching hash says that the game still plays the proof the way the kit recorded it. It does not say that the rules are right.
+- The hand play in these runs replayed the proof's own action lists, so it shows that the tool door and the rules agree, and it is not a test of how an agent finds a win.
 - `kit_commit` reads the checked out commit of the kit folder. It does not fetch.
 - A saved replay is written into the game folder in the kit repository.
 - The kit path and the app path are written into `app.json` by hand.

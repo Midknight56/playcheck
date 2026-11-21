@@ -204,7 +204,7 @@ test('the real README names the three job steps, the manual run, and what was no
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
   for (const text of ['agent.apps_trusted', 'cron update <job id> --approval-mode auto', 'cron resume <job id>',
-    'cron trigger <job id>', 'was not run on 2026-11-20', 'was not yet run on Crew', '--state',
+    'cron trigger <job id>', 'was not run on 2026-11-20', '--state',
     'Error: cannot reach gateway']) {
     assert.ok(readme.includes(text), `the README does not hold: ${text}`);
   }
@@ -402,4 +402,37 @@ test('command line, --strict, exits 1 and names the placeholder', (t) => {
   const result = cli(makeRepo(t), '--strict');
   assert.equal(result.status, 1);
   assert.match(result.stdout, /placeholder/);
+});
+
+// playcheck-depth task 8: the first runs of version 0.2.1 on Crew (20 Nov 2026).
+function readRepoFile(name) {
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  return fs.readFileSync(path.join(repo, name), 'utf8');
+}
+
+test('the real README no longer says that 0.2.1 has not run or is switched off', () => {
+  const readme = readRepoFile('README.md');
+  assert.doesNotMatch(readme, /0\.2\.1 was not yet run/);
+  assert.doesNotMatch(readme, /was not yet run on Crew/);
+  assert.doesNotMatch(readme, /has not run on Crew/);
+  assert.doesNotMatch(readme, /installed and switched off/);
+});
+
+test('the real README tells the runs 4 and 5 of version 0.2.1 and the data folder', () => {
+  const readme = readRepoFile('README.md');
+  for (const text of ['playcheck 0.2.1 enabled', 'Trust this app and enable',
+    '46decffc1423863afb37ce4396f64c55e20c33cb', 'No new commit',
+    '~/.kiro/crew/apps/playcheck/data/playcheck-commit-state.json',
+    'I sent the proof\'s action lists for these two levels rather than finding my own.']) {
+    assert.ok(readme.includes(text), `the README does not hold: ${text}`);
+  }
+  const runs = readRepoFile('docs/crew-runs-2026-11-20.md');
+  assert.ok(runs.includes('No new commit. The hash is `46decffc1423863afb37ce4396f64c55e20c33cb`'));
+});
+
+test('the real README does not say the agent won runs 2 to 4 by hand, and has the limits line', () => {
+  const readme = readRepoFile('README.md');
+  assert.doesNotMatch(readme, /won[^.\n]*by hand/);
+  assert.ok(readme.includes('The hand play in these runs replayed the proof\'s own action lists'), 'limits line is missing');
+  assert.ok(readme.includes('it is not a test of how an agent finds a win'), 'limits line is missing');
 });
